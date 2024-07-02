@@ -8,6 +8,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
+	"go.etcd.io/etcd/server/v3/embed"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
+
 	"github.com/k3s-io/kine/pkg/drivers/dqlite"
 	"github.com/k3s-io/kine/pkg/drivers/generic"
 	"github.com/k3s-io/kine/pkg/drivers/mysql"
@@ -17,13 +25,6 @@ import (
 	"github.com/k3s-io/kine/pkg/metrics"
 	"github.com/k3s-io/kine/pkg/server"
 	"github.com/k3s-io/kine/pkg/tls"
-	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/sirupsen/logrus"
-	"go.etcd.io/etcd/server/v3/embed"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/keepalive"
 )
 
 const (
@@ -46,6 +47,7 @@ type Config struct {
 	BackendTLSConfig     tls.Config
 	MetricsRegisterer    prometheus.Registerer
 	NotifyInterval       time.Duration
+	TableName            string
 }
 
 type ETCDConfig struct {
@@ -219,7 +221,7 @@ func getKineStorageBackend(ctx context.Context, driver, dsn string, cfg Config) 
 	case PostgresBackend:
 		backend, err = pgsql.New(ctx, dsn, cfg.BackendTLSConfig, cfg.ConnectionPoolConfig, cfg.MetricsRegisterer)
 	case MySQLBackend:
-		backend, err = mysql.New(ctx, dsn, cfg.BackendTLSConfig, cfg.ConnectionPoolConfig, cfg.MetricsRegisterer)
+		backend, err = mysql.New(ctx, dsn, cfg.BackendTLSConfig, cfg.ConnectionPoolConfig, cfg.MetricsRegisterer, cfg.TableName)
 	case JetStreamBackend:
 		backend, err = nats.NewLegacy(ctx, dsn, cfg.BackendTLSConfig)
 	case NATSBackend:
