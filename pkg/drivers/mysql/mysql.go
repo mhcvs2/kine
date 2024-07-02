@@ -68,10 +68,10 @@ func Schema(tableName string) []string {
 				PRIMARY KEY (id)
 			);`, tableName),
 		fmt.Sprintf(`CREATE INDEX %s_name_index ON %s (name)`, tableName, tableName),
-		`CREATE INDEX %s_name_id_index ON %s (name,id)`,
-		`CREATE INDEX %s_id_deleted_index ON %s (id,deleted)`,
-		`CREATE INDEX %s_prev_revision_index ON %s (prev_revision)`,
-		`CREATE UNIQUE INDEX %s_name_prev_revision_uindex ON %s (name, prev_revision)`,
+		fmt.Sprintf(`CREATE INDEX %s_name_id_index ON %s (name,id)`, tableName, tableName),
+		fmt.Sprintf(`CREATE INDEX %s_id_deleted_index ON %s (id,deleted)`, tableName, tableName),
+		fmt.Sprintf(`CREATE INDEX %s_prev_revision_index ON %s (prev_revision)`, tableName, tableName),
+		fmt.Sprintf(`CREATE UNIQUE INDEX %s_name_prev_revision_uindex ON %s (name, prev_revision)`, tableName, tableName),
 	}
 }
 
